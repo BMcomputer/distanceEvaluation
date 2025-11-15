@@ -152,7 +152,7 @@ function endQuiz(){
 
 // --- Soumettre la note à Google Sheet ---
 function submitScore(){
-  fetch('https://script.google.com/macros/s/AKfycbyIpSs-Vy8gX2dJ4ZXH0bHgec_AIPCkF2Vb0lBTLHj34U3xaQQFSJyiCShsWO402ROItA/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbymOSZn4p4D64m34_vr46zIQNHDzvQesNfN0VxZDtG8Dj-0VoQZ2sMy89M535JfxiKJaQ/exec', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -175,3 +175,4 @@ function submitScore(){
 </script>
 </body>
 </html>
+
