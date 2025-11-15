@@ -152,7 +152,7 @@ function endQuiz(){
   document.getElementById("score").appendChild(link);
 
   // --- ENVOI AUTOMATIQUE À GOOGLE SHEET ---
-  fetch(https://script.google.com/macros/s/AKfycbxu3_X3ofHSxfq_5vgGzDC52-lZLEAvZAkIptq_avZQm8L5TDqS0YyItRXs3Z4uAe_9LA/exec, {
+  fetch( 'https://script.google.com/macros/s/AKfycbzkPBBTqk6e2H2bqanVsrxWpBtm9oA-3ZYWF1Rgs_zFRdfvjs7igKJHlnDp9Qkk0gr8/exec', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -167,4 +167,5 @@ function endQuiz(){
 </script>
 </body>
 </html>
+
 
