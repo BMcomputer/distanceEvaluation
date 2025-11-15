@@ -35,7 +35,6 @@
 
 <script>
 // --- Questions QCM ---
-// (Le même tableau questionsBase que tu avais)
 const questionsBase = [
 {question:"Quel est le rôle principal d'un processeur ?", options:["Stocker des données","Exécuter des instructions","Gérer le réseau","Alimenter l'écran"], answer:1},
 {question:"HTML est utilisé pour :", options:["Styler des pages","Structurer des pages","Programmer des applications","Créer des bases de données"], answer:1},
@@ -47,8 +46,8 @@ const questionsBase = [
 {question:"Un malware est :", options:["Un logiciel malveillant","Un antivirus","Un protocole","Un serveur"], answer:0},
 {question:"Laquelle de ces ressources est basée sur le cloud ?", options:["Google Drive","Clé USB","Disque dur externe","CD-ROM"], answer:0},
 {question:"Lequel est un service en ligne collaboratif ?", options:["Microsoft Word hors ligne","Google Docs","Bloc-notes","Paint"], answer:1},
-
 ];
+
 // --- Variables ---
 let questions = [];
 let currentQuestion = 0;
@@ -58,15 +57,7 @@ let timerInterval;
 let studentName = '';
 let studentSerie = '';
 
-// --- Vérifie si l'élève a déjà composé ---
-window.onload = function(){
-    const savedName = localStorage.getItem('quiz_done');
-    if(savedName){
-        document.getElementById("student-form").style.display = "none";
-        document.getElementById("score").innerHTML = `Vous avez déjà composé, ${savedName} !`;
-    }
-}
-
+// --- Mélange les questions ---
 function shuffleArray(array){
  for(let i=array.length-1;i>0;i--){
   const j=Math.floor(Math.random()*(i+1));
@@ -81,12 +72,6 @@ function startQuiz(){
 
  if(studentName===""){ alert("Entrez votre nom."); return;}
  if(studentSerie===""){ alert("Sélectionnez votre série."); return;}
-
- // --- Vérifie encore si déjà composé ---
- if(localStorage.getItem('quiz_done') === studentName){
-    alert("Vous avez déjà composé !");
-    return;
- }
 
  document.getElementById("student-form").style.display="none";
  document.getElementById("timer").style.display="block";
@@ -144,12 +129,8 @@ function endQuiz(){
 
  const pourcentage = ((score/questions.length)*100).toFixed(2);
 
- // Affichage du score et message
  document.getElementById("score").innerHTML =
    `Épreuve terminée !<br>Votre note : ${score}/${questions.length} (${pourcentage}%)<br><br>${message}`;
-
- // --- Bloque l'élève pour une seule tentative ---
- localStorage.setItem('quiz_done', studentName);
 
  // --- Télécharger le score ---
  const csvContent = `Nom;Série;Score;Pourcentage;Date\n${studentName};${studentSerie};${score};${pourcentage};${new Date().toLocaleString()}\n`;
@@ -176,10 +157,7 @@ function endQuiz(){
     if(response.ok){ console.log("Note envoyée !"); }
     else{ console.error("Erreur lors de l'envoi."); }
 });
-
 }
 </script>
 </body>
 </html>
-
-
