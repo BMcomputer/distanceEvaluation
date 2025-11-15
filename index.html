@@ -36,16 +36,16 @@
 <script>
 // --- Questions QCM ---
 const questionsBase = [
-{question:"Quel est le rôle principal d'un processeur ?", options:["Stocker des données","Exécuter des instructions","Gérer le réseau","Alimenter l'écran"], answer:1},
-{question:"HTML est utilisé pour :", options:["Styler des pages","Structurer des pages","Programmer des applications","Créer des bases de données"], answer:1},
-{question:"Which protocol is secure for web browsing?", options:["HTTP","HTTPS","FTP","Telnet"], answer:1},
-{question:"Lequel est un système d'exploitation ?", options:["Linux","Python","Chrome","HTML"], answer:0},
-{question:"La RAM sert à :", options:["Stockage permanent","Stockage temporaire","Exécuter les programmes à distance","Gérer les périphériques"], answer:1},
-{question:"Que signifie VPN ?", options:["Virtual Private Network","Virtual Public Network","Verified Private Network","Virtual Protected Network"], answer:0},
-{question:"Un pare-feu (firewall) sert à :", options:["Bloquer certaines connexions","Accélérer l'ordinateur","Stocker des fichiers","Gérer la RAM"], answer:0},
-{question:"Un malware est :", options:["Un logiciel malveillant","Un antivirus","Un protocole","Un serveur"], answer:0},
-{question:"Laquelle de ces ressources est basée sur le cloud ?", options:["Google Drive","Clé USB","Disque dur externe","CD-ROM"], answer:0},
-{question:"Lequel est un service en ligne collaboratif ?", options:["Microsoft Word hors ligne","Google Docs","Bloc-notes","Paint"], answer:1},
+  {question:"Quel est le rôle principal d'un processeur ?", options:["Stocker des données","Exécuter des instructions","Gérer le réseau","Alimenter l'écran"], answer:1},
+  {question:"HTML est utilisé pour :", options:["Styler des pages","Structurer des pages","Programmer des applications","Créer des bases de données"], answer:1},
+  {question:"Which protocol is secure for web browsing?", options:["HTTP","HTTPS","FTP","Telnet"], answer:1},
+  {question:"Lequel est un système d'exploitation ?", options:["Linux","Python","Chrome","HTML"], answer:0},
+  {question:"La RAM sert à :", options:["Stockage permanent","Stockage temporaire","Exécuter les programmes à distance","Gérer les périphériques"], answer:1},
+  {question:"Que signifie VPN ?", options:["Virtual Private Network","Virtual Public Network","Verified Private Network","Virtual Protected Network"], answer:0},
+  {question:"Un pare-feu (firewall) sert à :", options:["Bloquer certaines connexions","Accélérer l'ordinateur","Stocker des fichiers","Gérer la RAM"], answer:0},
+  {question:"Un malware est :", options:["Un logiciel malveillant","Un antivirus","Un protocole","Un serveur"], answer:0},
+  {question:"Laquelle de ces ressources est basée sur le cloud ?", options:["Google Drive","Clé USB","Disque dur externe","CD-ROM"], answer:0},
+  {question:"Lequel est un service en ligne collaboratif ?", options:["Microsoft Word hors ligne","Google Docs","Bloc-notes","Paint"], answer:1},
 ];
 
 // --- Variables ---
@@ -59,11 +59,11 @@ let studentSerie = '';
 
 // --- Mélange les questions ---
 function shuffleArray(array){
- for(let i=array.length-1;i>0;i--){
-  const j=Math.floor(Math.random()*(i+1));
-  [array[i],array[j]]=[array[j],array[i]];
- }
- return array;
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+  return array;
 }
 
 // --- Démarrer le quiz ---
@@ -72,14 +72,14 @@ function startQuiz(){
   score = 0;
   timeLeft = 30;
 
-  studentName=document.getElementById("student-name").value.trim();
-  studentSerie=document.getElementById("student-series").value;
+  studentName = document.getElementById("student-name").value.trim();
+  studentSerie = document.getElementById("student-series").value;
 
-  if(studentName===""){ alert("Entrez votre nom."); return;}
-  if(studentSerie===""){ alert("Sélectionnez votre série."); return;}
+  if(studentName === "") { alert("Entrez votre nom."); return; }
+  if(studentSerie === "") { alert("Sélectionnez votre série."); return; }
 
-  document.getElementById("student-form").style.display="none";
-  document.getElementById("timer").style.display="block";
+  document.getElementById("student-form").style.display = "none";
+  document.getElementById("timer").style.display = "block";
 
   questions = shuffleArray([...questionsBase]);
   showQuestion();
@@ -87,36 +87,39 @@ function startQuiz(){
 
 // --- Affiche la question ---
 function showQuestion(){
-  if(currentQuestion>=questions.length){ endQuiz(); return;}
-  const q=questions[currentQuestion];
-  const container=document.getElementById("quiz-container");
-  container.innerHTML=`<div class='question'><strong>Question ${currentQuestion+1} :</strong> ${q.question}</div>`;
-  const optionsDiv=document.createElement("div");
-  optionsDiv.className="options";
+  if(currentQuestion >= questions.length){ endQuiz(); return; }
+
+  const q = questions[currentQuestion];
+  const container = document.getElementById("quiz-container");
+  container.innerHTML = `<div class='question'><strong>Question ${currentQuestion+1} :</strong> ${q.question}</div>`;
+  
+  const optionsDiv = document.createElement("div");
+  optionsDiv.className = "options";
+
   q.options.forEach((opt,i)=>{
-    const btn=document.createElement("button");
-    btn.textContent=opt;
-    btn.onclick=()=>selectAnswer(i);
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
     optionsDiv.appendChild(btn);
   });
   container.appendChild(optionsDiv);
 
-  timeLeft=30;
-  document.getElementById("timer").textContent=`Temps restant : ${timeLeft}s`;
+  timeLeft = 30;
+  document.getElementById("timer").textContent = `Temps restant : ${timeLeft}s`;
   clearInterval(timerInterval);
-  timerInterval=setInterval(updateTimer,1000);
+  timerInterval = setInterval(updateTimer,1000);
 }
 
 // --- Timer ---
 function updateTimer(){
   timeLeft--;
-  document.getElementById("timer").textContent=`Temps restant : ${timeLeft}s`;
-  if(timeLeft<=0){ clearInterval(timerInterval); nextQuestion(); }
+  document.getElementById("timer").textContent = `Temps restant : ${timeLeft}s`;
+  if(timeLeft <= 0){ clearInterval(timerInterval); nextQuestion(); }
 }
 
 // --- Choix réponse ---
 function selectAnswer(index){
-  if(index===questions[currentQuestion].answer) score++;
+  if(index === questions[currentQuestion].answer) score++;
   nextQuestion();
 }
 
@@ -130,8 +133,8 @@ function nextQuestion(){
 // --- Fin du quiz ---
 function endQuiz(){
   clearInterval(timerInterval);
-  document.getElementById("quiz-container").innerHTML="";
-  document.getElementById("timer").style.display="none";
+  document.getElementById("quiz-container").innerHTML = "";
+  document.getElementById("timer").style.display = "none";
 
   const pourcentage = ((score/questions.length)*100).toFixed(2);
   let message = score >= questions.length/2 ?
@@ -152,7 +155,7 @@ function endQuiz(){
   document.getElementById("score").appendChild(link);
 
   // --- ENVOI AUTOMATIQUE À GOOGLE SHEET ---
-  fetch( 'https://script.google.com/macros/s/AKfycbzkPBBTqk6e2H2bqanVsrxWpBtm9oA-3ZYWF1Rgs_zFRdfvjs7igKJHlnDp9Qkk0gr8/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbzkPBBTqk6e2H2bqanVsrxWpBtm9oA-3ZYWF1Rgs_zFRdfvjs7igKJHlnDp9Qkk0gr8/exec', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -167,5 +170,3 @@ function endQuiz(){
 </script>
 </body>
 </html>
-
-
