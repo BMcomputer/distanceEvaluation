@@ -162,21 +162,24 @@ function endQuiz(){
  document.getElementById("score").appendChild(link);
 
  // --- ENVOI AUTOMATIQUE À GOOGLE SHEET ---
- fetch('https://script.google.com/macros/s/AKfycbwqIQ6qhIz18c8F27BCb2dUHvInh2-ywgOGOPN7dz2Ek_ElkBtN3GmW0U7Rex-PiEFlQA/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            nom: studentName,
-            serie: studentSerie,
-            score: score,
-            pourcentage: pourcentage
-        })
-    }).then(response => {
-        if(response.ok){ console.log("Note envoyée !"); }
-        else{ console.error("Erreur lors de l'envoi."); }
-    });
+ fetch('https://script.google.com/macros/s/AKfycbxtDVfs4FvqjYzMPzfcI3JVjgupySLtZoHAStEP3AI9GYEaRZ3Bxahdqa7OCOHqucJtlg/exec', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        nom: studentName,
+        serie: studentSerie,
+        score: score,
+        pourcentage: Math.round((score/questions.length)*100)
+    })
+})
+.then(response => {
+    if(response.ok){ console.log("Note envoyée !"); }
+    else{ console.error("Erreur lors de l'envoi."); }
+});
+
 }
 </script>
 </body>
 </html>
+
 
