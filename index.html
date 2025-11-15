@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>COLLÈGE NANA BOUBA - Évaluation à distance</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
  body { font-family: Arial, sans-serif; max-width: 900px; margin: auto; padding: 20px; }
  h1 { text-align: center; margin-bottom: 5px; }
@@ -13,10 +12,18 @@
  .timer { font-weight: bold; color: red; margin-bottom: 20px; font-size: 18px; }
  #score { font-size: 24px; text-align: center; margin-top: 30px; color: green; }
  #student-form input, #student-form select, #student-form button { padding: 10px; margin: 5px 0; font-size: 16px; width: 100%; }
- #download-pdf { padding: 10px 20px; font-size: 16px; margin-top: 20px; display: none; }
+ #download-csv { padding: 10px 20px; font-size: 16px; margin-top: 20px; display: none; }
+ .logo { text-align: center; margin-bottom: 10px; }
+ .logo img { width: 110px; }
 </style>
 </head>
 <body>
+
+<!-- LOGO -->
+<div class="logo">
+    <img src="logo.png" alt="Logo Collège Nana Bouba">
+</div>
+
 <h1>COLLÈGE NANA BOUBA</h1>
 <h2>Évaluation à distance – Classe Terminale A</h2>
 
@@ -34,7 +41,9 @@
 <div class="timer" id="timer" style="display:none;">Temps restant : 30s</div>
 <div id="quiz-container"></div>
 <div id="score"></div>
-<button id="download-pdf" onclick="downloadPDF()">Télécharger votre score en PDF</button>
+
+<!-- Bouton CSV -->
+<button id="download-csv" onclick="downloadCSV()">📥 Télécharger votre note (CSV)</button>
 
 <script>
 // --- Questions QCM ---
@@ -45,13 +54,13 @@ const questionsBase = [
   {question:"Lequel est un système d'exploitation ?", options:["Linux","Python","Chrome","HTML"], answer:0},
   {question:"La RAM sert à :", options:["Stockage permanent","Stockage temporaire","Exécuter les programmes à distance","Gérer les périphériques"], answer:1},
   {question:"Que signifie VPN ?", options:["Virtual Private Network","Virtual Public Network","Verified Private Network","Virtual Protected Network"], answer:0},
-  {question:"Un pare-feu (firewall) sert à :", options:["Bloquer certaines connexions","Accélérer l'ordinateur","Stocker des fichiers","Gérer la RAM"], answer:0},
+  {question:"Un pare-feu sert à :", options:["Bloquer certaines connexions","Accélérer l'ordinateur","Stocker des fichiers","Gérer la RAM"], answer:0},
   {question:"Un malware est :", options:["Un logiciel malveillant","Un antivirus","Un protocole","Un serveur"], answer:0},
   {question:"Laquelle de ces ressources est basée sur le cloud ?", options:["Google Drive","Clé USB","Disque dur externe","CD-ROM"], answer:0},
   {question:"Lequel est un service en ligne collaboratif ?", options:["Microsoft Word hors ligne","Google Docs","Bloc-notes","Paint"], answer:1},
 ];
 
-// --- Variables ---
+// Variables
 let questions = [];
 let currentQuestion = 0;
 let score = 0;
@@ -60,7 +69,7 @@ let timerInterval;
 let studentName = '';
 let studentSerie = '';
 
-// --- Mélange des questions ---
+// Mélange questions
 function shuffleArray(array){
   for(let i=array.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
@@ -69,7 +78,7 @@ function shuffleArray(array){
   return array;
 }
 
-// --- Démarrer le quiz ---
+// Commencer le quiz
 function startQuiz(){
   currentQuestion = 0;
   score = 0;
@@ -88,7 +97,7 @@ function startQuiz(){
   showQuestion();
 }
 
-// --- Affiche la question ---
+// Affiche question
 function showQuestion(){
   if(currentQuestion >= questions.length){ endQuiz(); return; }
 
@@ -113,70 +122,62 @@ function showQuestion(){
   timerInterval = setInterval(updateTimer,1000);
 }
 
-// --- Timer ---
+// Timer
 function updateTimer(){
   timeLeft--;
   document.getElementById("timer").textContent = `Temps restant : ${timeLeft}s`;
   if(timeLeft <= 0){ clearInterval(timerInterval); nextQuestion(); }
 }
 
-// --- Choix réponse ---
-function selectAnswer(index){
-  if(index === questions[currentQuestion].answer) score++;
+// Sélection réponse
+function selectAnswer(i){
+  if(i === questions[currentQuestion].answer) score++;
   nextQuestion();
 }
 
-// --- Question suivante ---
+// Suivante
 function nextQuestion(){
   clearInterval(timerInterval);
   currentQuestion++;
   showQuestion();
 }
 
-// --- Fin du quiz ---
+// Fin quiz
 function endQuiz(){
   clearInterval(timerInterval);
   document.getElementById("quiz-container").innerHTML = "";
   document.getElementById("timer").style.display = "none";
 
   const pourcentage = ((score/questions.length)*100).toFixed(2);
-  let message = score >= questions.length/2 ?
-      "✔ Félicitations, vous avez réussi ! Continuez ainsi." :
-      "❌ Vous avez échoué. Revoyez vos cours et entraînez-vous davantage.";
+
+  const message = score >= questions.length/2 ?
+      "✔ Félicitations, vous avez réussi !" :
+      "❌ Vous avez échoué. Travaillez davantage.";
 
   document.getElementById("score").innerHTML =
     `Épreuve terminée !<br>Votre note : ${score}/${questions.length} (${pourcentage}%)<br><br>${message}`;
 
-  // --- Affiche le bouton PDF ---
-  document.getElementById("download-pdf").style.display = "block";
+  document.getElementById("download-csv").style.display = "block";
 }
 
-// --- Télécharger le PDF ---
-function downloadPDF(){
-  // Correction ici : récupération correcte de jsPDF
-  const { jsPDF } = window.jspdf;
-  if(!jsPDF) { alert("Erreur: jsPDF non chargé."); return; }
-  
-  const doc = new jsPDF();
+// CSV
+function downloadCSV(){
+    const pourcentage = ((score/questions.length)*100).toFixed(2);
 
-  doc.setFontSize(16);
-  doc.text("COLLÈGE NANA BOUBA", 105, 20, { align: "center" });
-  doc.setFontSize(14);
-  doc.text("Évaluation à distance – Classe Terminale A", 105, 30, { align: "center" });
+    const csvContent =
+        "nom,serie,score,pourcentage,date\n" +
+        `${studentName},${studentSerie},${score},${pourcentage},${new Date().toLocaleString()}`;
 
-  doc.setFontSize(12);
-  doc.text(`Nom : ${studentName}`, 20, 50);
-  doc.text(`Série : ${studentSerie}`, 20, 60);
-  doc.text(`Score : ${score}/${questions.length}`, 20, 70);
-  doc.text(`Pourcentage : ${pourcentage}%`, 20, 80);
-  doc.text(`Date : ${new Date().toLocaleString()}`, 20, 90);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
 
-  const message = score >= questions.length/2 ?
-      "✔ Félicitations, vous avez réussi ! Continuez ainsi." :
-      "❌ Vous avez échoué. Revoyez vos cours et entraînez-vous davantage.";
-  doc.text(message, 20, 110);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `note_${studentName.replace(/\s/g,'_')}.csv`);
+    document.body.appendChild(link);
 
-  doc.save(`score_${studentName.replace(/\s/g,'_')}.pdf`);
+    link.click();
+    document.body.removeChild(link);
 }
 </script>
 </body>
