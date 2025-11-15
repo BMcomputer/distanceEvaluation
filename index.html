@@ -153,19 +153,22 @@ function endQuiz(){
 
 // --- Télécharger le PDF ---
 function downloadPDF(){
+  // Correction ici : récupération correcte de jsPDF
   const { jsPDF } = window.jspdf;
+  if(!jsPDF) { alert("Erreur: jsPDF non chargé."); return; }
+  
   const doc = new jsPDF();
 
   doc.setFontSize(16);
-  doc.text("COLLÈGE NANA BOUBA", 105, 20, null, null, "center");
+  doc.text("COLLÈGE NANA BOUBA", 105, 20, { align: "center" });
   doc.setFontSize(14);
-  doc.text("Évaluation à distance – Classe Terminale A", 105, 30, null, null, "center");
+  doc.text("Évaluation à distance – Classe Terminale A", 105, 30, { align: "center" });
 
   doc.setFontSize(12);
   doc.text(`Nom : ${studentName}`, 20, 50);
   doc.text(`Série : ${studentSerie}`, 20, 60);
   doc.text(`Score : ${score}/${questions.length}`, 20, 70);
-  doc.text(`Pourcentage : ${((score/questions.length)*100).toFixed(2)}%`, 20, 80);
+  doc.text(`Pourcentage : ${pourcentage}%`, 20, 80);
   doc.text(`Date : ${new Date().toLocaleString()}`, 20, 90);
 
   const message = score >= questions.length/2 ?
