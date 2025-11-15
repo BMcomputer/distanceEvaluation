@@ -11,7 +11,7 @@
  .options button { display: block; margin: 5px 0; padding: 10px; width: 100%; font-size: 16px; }
  .timer { font-weight: bold; color: red; margin-bottom: 20px; font-size: 18px; }
  #score { font-size: 24px; text-align: center; margin-top: 30px; color: green; }
- #student-form input, #student-form button { padding: 10px; margin: 5px 0; font-size: 16px; width: 100%; }
+ #student-form input, #student-form select, #student-form button { padding: 10px; margin: 5px 0; font-size: 16px; width: 100%; }
 </style>
 </head>
 <body>
@@ -20,6 +20,12 @@
 
 <div id="student-form">
     <input type="text" id="student-name" placeholder="Nom et prénom" required>
+    <select id="student-series" required>
+        <option value="">-- Sélectionnez votre série --</option>
+        <option value="Arabe">Arabe</option>
+        <option value="Espagnol">Espagnol</option>
+        <option value="Allemand">Allemand</option>
+    </select>
     <button onclick="startQuiz()">Commencer l'évaluation</button>
 </div>
 
@@ -29,6 +35,7 @@
 
 <script>
 // --- Questions QCM ---
+// (Le même tableau questionsBase que tu avais)
 const questionsBase = [
 {question:"Quel est le rôle principal d'un processeur ?", options:["Stocker des données","Exécuter des instructions","Gérer le réseau","Alimenter l'écran"], answer:1},
 {question:"HTML est utilisé pour :", options:["Styler des pages","Structurer des pages","Programmer des applications","Créer des bases de données"], answer:1},
@@ -96,6 +103,7 @@ let score = 0;
 let timeLeft = 30;
 let timerInterval;
 let studentName = '';
+let studentSerie = '';
 
 // --- Vérifie si l'élève a déjà composé ---
 window.onload = function(){
@@ -116,7 +124,10 @@ function shuffleArray(array){
 
 function startQuiz(){
  studentName=document.getElementById("student-name").value.trim();
+ studentSerie=document.getElementById("student-series").value;
+
  if(studentName===""){ alert("Entrez votre nom."); return;}
+ if(studentSerie===""){ alert("Sélectionnez votre série."); return;}
 
  // --- Vérifie encore si déjà composé ---
  if(localStorage.getItem('quiz_done') === studentName){
@@ -178,15 +189,17 @@ function endQuiz(){
     message = "❌ Vous avez échoué. Revoyez vos cours et entraînez-vous davantage.";
  }
 
+ const pourcentage = ((score/questions.length)*100).toFixed(2);
+
  // Affichage du score et message
  document.getElementById("score").innerHTML =
-   `Épreuve terminée !<br>Votre note : ${score}/${questions.length}<br><br>${message}`;
+   `Épreuve terminée !<br>Votre note : ${score}/${questions.length} (${pourcentage}%)<br><br>${message}`;
 
  // --- Bloque l'élève pour une seule tentative ---
  localStorage.setItem('quiz_done', studentName);
 
  // --- Télécharger le score ---
- const csvContent = `Nom;Score\n${studentName};${score}\n`;
+ const csvContent = `Nom;Série;Score;Pourcentage;Date\n${studentName};${studentSerie};${score};${pourcentage};${new Date().toLocaleString()}\n`;
  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
  const link = document.createElement("a");
  link.href = URL.createObjectURL(blob);
@@ -199,7 +212,12 @@ function endQuiz(){
  fetch('https://script.google.com/macros/s/AKfycbwqIQ6qhIz18c8F27BCb2dUHvInh2-ywgOGOPN7dz2Ek_ElkBtN3GmW0U7Rex-PiEFlQA/exec', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nom: studentName, score: score })
+        body: JSON.stringify({
+            nom: studentName,
+            serie: studentSerie,
+            score: score,
+            pourcentage: pourcentage
+        })
     }).then(response => {
         if(response.ok){ console.log("Note envoyée !"); }
         else{ console.error("Erreur lors de l'envoi."); }
