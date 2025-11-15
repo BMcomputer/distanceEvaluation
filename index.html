@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>COLLÈGE NANA BOUBA - Évaluation à distance</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
  body { font-family: Arial, sans-serif; max-width: 900px; margin: auto; padding: 20px; }
  h1 { text-align: center; margin-bottom: 5px; }
@@ -12,7 +13,7 @@
  .timer { font-weight: bold; color: red; margin-bottom: 20px; font-size: 18px; }
  #score { font-size: 24px; text-align: center; margin-top: 30px; color: green; }
  #student-form input, #student-form select, #student-form button { padding: 10px; margin: 5px 0; font-size: 16px; width: 100%; }
- #submit-btn { padding: 10px 20px; font-size: 16px; margin-top: 20px; display: none; }
+ #download-pdf { padding: 10px 20px; font-size: 16px; margin-top: 20px; display: none; }
 </style>
 </head>
 <body>
@@ -33,7 +34,7 @@
 <div class="timer" id="timer" style="display:none;">Temps restant : 30s</div>
 <div id="quiz-container"></div>
 <div id="score"></div>
-<button id="submit-btn" onclick="submitScore()">Soumettre la note</button>
+<button id="download-pdf" onclick="downloadPDF()">Télécharger votre score en PDF</button>
 
 <script>
 // --- Questions QCM ---
@@ -59,7 +60,7 @@ let timerInterval;
 let studentName = '';
 let studentSerie = '';
 
-// --- Mélange les questions ---
+// --- Mélange des questions ---
 function shuffleArray(array){
   for(let i=array.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
@@ -146,33 +147,34 @@ function endQuiz(){
   document.getElementById("score").innerHTML =
     `Épreuve terminée !<br>Votre note : ${score}/${questions.length} (${pourcentage}%)<br><br>${message}`;
 
-  // --- Affiche bouton de soumission ---
-  document.getElementById("submit-btn").style.display = "block";
+  // --- Affiche le bouton PDF ---
+  document.getElementById("download-pdf").style.display = "block";
 }
 
-// --- Soumettre la note à Google Sheet ---
-function submitScore(){
-  fetch('https://script.google.com/macros/s/AKfycbymOSZn4p4D64m34_vr46zIQNHDzvQesNfN0VxZDtG8Dj-0VoQZ2sMy89M535JfxiKJaQ/exec', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        nom: studentName,
-        serie: studentSerie,
-        score: score,
-        pourcentage: Math.round((score/questions.length)*100)
-    })
-  })
-  .then(response => {
-    if(response.ok){
-      alert("Votre note a été envoyée avec succès !");
-      document.getElementById("submit-btn").style.display = "none";
-    } else {
-      alert("Erreur lors de l'envoi. Veuillez réessayer.");
-    }
-  })
-  .catch(() => alert("Impossible de se connecter au serveur."));
+// --- Télécharger le PDF ---
+function downloadPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.text("COLLÈGE NANA BOUBA", 105, 20, null, null, "center");
+  doc.setFontSize(14);
+  doc.text("Évaluation à distance – Classe Terminale A", 105, 30, null, null, "center");
+
+  doc.setFontSize(12);
+  doc.text(`Nom : ${studentName}`, 20, 50);
+  doc.text(`Série : ${studentSerie}`, 20, 60);
+  doc.text(`Score : ${score}/${questions.length}`, 20, 70);
+  doc.text(`Pourcentage : ${((score/questions.length)*100).toFixed(2)}%`, 20, 80);
+  doc.text(`Date : ${new Date().toLocaleString()}`, 20, 90);
+
+  const message = score >= questions.length/2 ?
+      "✔ Félicitations, vous avez réussi ! Continuez ainsi." :
+      "❌ Vous avez échoué. Revoyez vos cours et entraînez-vous davantage.";
+  doc.text(message, 20, 110);
+
+  doc.save(`score_${studentName.replace(/\s/g,'_')}.pdf`);
 }
 </script>
 </body>
 </html>
-
