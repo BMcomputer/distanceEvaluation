@@ -12,7 +12,6 @@
  .timer { font-weight: bold; color: red; margin-bottom: 20px; font-size: 18px; }
  #score { font-size: 24px; text-align: center; margin-top: 30px; color: green; }
  #student-form input, #student-form select, #student-form button { padding: 10px; margin: 5px 0; font-size: 16px; width: 100%; }
- #submit-btn { padding: 10px 20px; font-size: 16px; margin-top: 20px; display: none; }
 </style>
 </head>
 <body>
@@ -33,7 +32,6 @@
 <div class="timer" id="timer" style="display:none;">Temps restant : 30s</div>
 <div id="quiz-container"></div>
 <div id="score"></div>
-<button id="submit-btn" onclick="submitScore()">Soumettre la note</button>
 
 <script>
 // --- Questions QCM ---
@@ -146,8 +144,16 @@ function endQuiz(){
   document.getElementById("score").innerHTML =
     `Épreuve terminée !<br>Votre note : ${score}/${questions.length} (${pourcentage}%)<br><br>${message}`;
 
-  // --- Affiche bouton de soumission ---
-  document.getElementById("submit-btn").style.display = "block";
+  // --- Crée le bouton de soumission dynamiquement ---
+  let submitBtn = document.createElement("button");
+  submitBtn.id = "submit-btn";
+  submitBtn.textContent = "Soumettre la note";
+  submitBtn.style.padding = "10px 20px";
+  submitBtn.style.fontSize = "16px";
+  submitBtn.style.marginTop = "20px";
+  submitBtn.onclick = submitScore;
+
+  document.getElementById("score").appendChild(submitBtn);
 }
 
 // --- Soumettre la note à Google Sheet ---
@@ -165,7 +171,7 @@ function submitScore(){
   .then(response => {
     if(response.ok){
       alert("Votre note a été envoyée avec succès !");
-      document.getElementById("submit-btn").style.display = "none";
+      document.getElementById("submit-btn").remove();
     } else {
       alert("Erreur lors de l'envoi. Veuillez réessayer.");
     }
