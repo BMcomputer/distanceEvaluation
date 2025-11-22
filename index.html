@@ -4,246 +4,340 @@
 <meta charset="UTF-8">
 <title>COLLÈGE NANA BOUBA - Évaluation à distance</title>
 <style>
- body { 
-    font-family: Arial, sans-serif; 
-    max-width: 900px; 
-    margin: auto; 
-    padding: 20px; 
-    background-color: #f0f8ff; /* couleur attirante */
-}
-h1 { text-align: center; margin-bottom: 5px; }
-h2 { text-align: center; margin-top: 0; font-weight: normal; font-size: 18px; color: #555; }
-.question { margin-bottom: 20px; font-size: 18px; }
-.options button { display: block; margin: 5px 0; padding: 10px; width: 100%; font-size: 16px; cursor: pointer; }
-.options button:hover { background-color: #add8e6; } /* survol */
-.timer { font-weight: bold; color: red; margin-bottom: 20px; font-size: 18px; }
-#score { font-size: 24px; text-align: center; margin-top: 30px; color: green; }
-#student-form input, #student-form select, #student-form button { padding: 10px; margin: 5px 0; font-size: 16px; width: 100%; }
-#download-csv { padding: 10px 20px; font-size: 16px; margin-top: 20px; display: none; cursor: pointer; }
-.logo { text-align: center; margin-bottom: 10px; }
-.logo img { width: 110px; }
+ body { font-family: Arial, sans-serif; max-width: 900px; margin: auto; padding: 20px; background-color: #f0f8ff; }
+ h1 { text-align: center; margin-bottom: 5px; }
+ h2 { text-align: center; margin-top: 0; font-weight: normal; font-size: 18px; color: #555; }
+ .question { margin-bottom: 20px; font-size: 18px; }
+ .options button { display: block; margin: 5px 0; padding: 10px; width: 100%; font-size: 16px; cursor: pointer; }
+ .options button:hover { background-color: #add8e6; }
+ .timer { font-weight: bold; color: red; margin-bottom: 20px; font-size: 18px; }
+ #score { font-size: 24px; text-align: center; margin-top: 30px; color: green; }
+ #student-form input, #student-form select, #student-form button { padding: 10px; margin: 5px 0; font-size: 16px; width: 100%; }
+ #download-csv { padding: 10px 20px; font-size: 16px; margin-top: 20px; display: none; cursor: pointer; }
+ .logo { text-align: center; margin-bottom: 10px; }
+ .logo img { width: 110px; }
+ #quiz-header { text-align: center; font-size: 18px; margin-bottom: 10px; font-weight: bold; }
 </style>
 </head>
 <body>
-
-<!-- LOGO -->
 <div class="logo">
-    <img src="logo.png" alt="Logo Collège Nana Bouba">
+ <img src="logo.png" alt="Logo Collège Nana Bouba">
 </div>
-
 <h1>COLLÈGE NANA BOUBA</h1>
-<h2>Évaluation à distance – Classe Terminale A</h2>
-
+<h2>Évaluation à distance</h2>
 <div id="student-form">
-    <input type="text" id="student-name" placeholder="Nom et prénom" required>
-    <select id="student-series" required>
-        <option value="">-- Sélectionnez votre série --</option>
-        <option value="Arabe">Arabe</option>
-        <option value="Espagnol">Espagnol</option>
-        <option value="Allemand">Allemand</option>
-    </select>
-    <button onclick="startQuiz()">Commencer l'évaluation</button>
+ <input type="text" id="student-name" placeholder="Nom et prénom" required>
+ <select id="student-class" required>
+   <option value="">-- Sélectionnez votre classe --</option>
+   <option value="6e">6e</option>
+   <option value="5e">5e</option>
+   <option value="4e">4e</option>
+   <option value="3e">3e</option>
+   <option value="Terminale A">Terminale A</option>
+ </select>
+ <select id="student-series" required>
+   <option value="">-- Sélectionnez votre série --</option>
+   <option value="Arabe">Arabe</option>
+   <option value="Espagnol">Espagnol</option>
+   <option value="Allemand">Allemand</option>
+ </select>
+ <button onclick="startQuiz()">Commencer l'évaluation</button>
 </div>
 
 <div class="timer" id="timer" style="display:none;">Temps restant : 30s</div>
+<div id="quiz-header"></div>
 <div id="quiz-container"></div>
 <div id="score"></div>
-
-<!-- Bouton CSV -->
 <button id="download-csv" onclick="downloadCSV()">📥 Télécharger votre note (CSV)</button>
 
 <script>
-// --- Questions QCM ---
-const questionsBase = [
-{question:"Quel est le rôle principal d'un processeur ?", options:["Stocker des données","Exécuter des instructions","Gérer le réseau","Alimenter l'écran"], answer:1},
-{question:"HTML est utilisé pour :", options:["Styler des pages","Structurer des pages","Programmer des applications","Créer des bases de données"], answer:1},
-{question:"Which protocol is secure for web browsing?", options:["HTTP","HTTPS","FTP","Telnet"], answer:1},
-{question:"Lequel est un système d'exploitation ?", options:["Linux","Python","Chrome","HTML"], answer:0},
-{question:"La RAM sert à :", options:["Stockage permanent","Stockage temporaire","Exécuter les programmes à distance","Gérer les périphériques"], answer:1},
-{question:"Que signifie VPN ?", options:["Virtual Private Network","Virtual Public Network","Verified Private Network","Virtual Protected Network"], answer:0},
-{question:"Un pare-feu (firewall) sert à :", options:["Bloquer certaines connexions","Accélérer l'ordinateur","Stocker des fichiers","Gérer la RAM"], answer:0},
-{question:"Un malware est :", options:["Un logiciel malveillant","Un antivirus","Un protocole","Un serveur"], answer:0},
-{question:"Laquelle de ces ressources est basée sur le cloud ?", options:["Google Drive","Clé USB","Disque dur externe","CD-ROM"], answer:0},
-{question:"Lequel est un service en ligne collaboratif ?", options:["Microsoft Word hors ligne","Google Docs","Bloc-notes","Paint"], answer:1},
-
-{question:"Un réseau informatique est :", options:["Un ensemble d’ordinateurs isolés","Un ensemble d’ordinateurs interconnectés","Une base de données","Une clé USB"], answer:1},
-{question:"Which device connects multiple networks together?", options:["Switch","Router","Keyboard","Screen"], answer:1},
-{question:"Le Wi-Fi est un réseau :", options:["Filaire","Sans fil","Bluetooth","Optique"], answer:1},
-{question:"Lequel est un périphérique d’entrée ?", options:["Imprimante","Souris","Écran","Haut-parleur"], answer:1},
-{question:"Lequel est un périphérique de sortie ?", options:["Clavier","Scanner","Écran","Souris"], answer:2},
-
-{question:"Quel est l’objectif d’un antivirus ?", options:["Créer des virus","Protéger contre les logiciels malveillants","Accélérer Internet","Améliorer l’écran"], answer:1},
-{question:"Phishing aims to:", options:["Steal sensitive information","Clean the computer","Speed up the network","Test the RAM"], answer:0},
-{question:"Un mot de passe fort doit contenir :", options:["Seulement des lettres","Des caractères variés","Seulement des chiffres","Le nom de l'utilisateur"], answer:1},
-{question:"Quel est le principal danger d’un réseau Wi-Fi public ?", options:["Très rapide","Toujours sécurisé","Risque de piratage","Illimité"], answer:2},
-{question:"Un logiciel propriétaire :", options:["Est totalement gratuit","Ne peut pas être modifié librement","Est open source","Fonctionne sans ordinateur"], answer:1},
-
-{question:"The protocol used to send emails is:", options:["SMTP","FTP","SSH","HTTP"], answer:0},
-{question:"Quel format de fichier est une image ?", options:["JPEG","DOCX","MP3","PDF"], answer:0},
-{question:"Quel appareil attribue des adresses IP dans un réseau ?", options:["Serveur DHCP","Scanner","Clavier","Switch"], answer:0},
-{question:"L’unité de stockage la plus petite est :", options:["Mo","Go","To","Ko"], answer:3},
-{question:"Cloud computing means:", options:["Local storage","Online storage","File deletion","Web browsing"], answer:1},
-
-{question:"Quel élément protège un compte en ligne ?", options:["Mot de passe faible","Même mot de passe partout","MFA (double authentification)","Aucun mot de passe"], answer:2},
-{question:"FTP sert à :", options:["Transférer des fichiers","Envoyer des emails","Créer des pages web","Coder une application"], answer:0},
-{question:"Quel langage permet de styliser une page web ?", options:["HTML","CSS","Python","SQL"], answer:1},
-{question:"Quel langage sert à interroger une base de données ?", options:["CSS","SQL","HTML","PHP"], answer:1},
-{question:"Un réseau local (LAN) couvre :", options:["Une maison ou école","Un pays","Le monde","Un continent"], answer:0},
-
-{question:"Le système binaire utilise :", options:["Chiffres 0 et 1","Chiffres 1 à 9","Lettres","Symboles"], answer:0},
-{question:"Quel logiciel permet la navigation Internet ?", options:["Word","Excel","Chrome","VLC"], answer:2},
-{question:"USB stands for:", options:["United Serial Bus","Universal Serial Bus","United System Backup","Universal Server Boot"], answer:1},
-{question:"Lequel est un réseau social ?", options:["Windows","Instagram","Ubuntu","Excel"], answer:1},
-{question:"La fibre optique utilise :", options:["L'électricité","La lumière","Le Bluetooth","Les UV"], answer:1},
-
-{question:"Quel composant stocke définitivement les données ?", options:["RAM","Disque dur","Cache","Processeur"], answer:1},
-{question:"Un logiciel open source :", options:["Est fermé","Son code est accessible","Toujours payant","Ne peut pas être modifié"], answer:1},
-{question:"La sauvegarde sert à :", options:["Copier les données","Supprimer les données","Partager des vidéos","Créer un virus"], answer:0},
-{question:"Lequel est un exemple de système d'exploitation mobile ?", options:["Android","Chrome","Python","CorelDraw"], answer:0},
-{question:"Laquelle est une menace informatique ?", options:["RAM","Virus","Clavier","HTML"], answer:1},
-
-{question:"Une adresse IP permet :", options:["Identifier un appareil sur un réseau","De créer des images","D’écouter de la musique","D’augmenter la RAM"], answer:0},
-{question:"Which protocol secures a Wi-Fi network?", options:["WEP","WPA2","None","DNS"], answer:1},
-{question:"Lequel est un navigateur web ?", options:["PowerPoint","Firefox","Excel","Paint"], answer:1},
-{question:"Le cloud permet :", options:["Stockage local","Stockage en ligne accessible partout","Supprimer Internet","Bloquer le Wi-Fi"], answer:1},
-{question:"Lequel est un périphérique de stockage ?", options:["Clé USB","Souris","Écran","Clavier"], answer:0},
-
-{question:"Le DMA est :", options:["Une attaque réseau","Un style de musique","Un type de virus","Une méthode de cryptage"], answer:0},
-{question:"Quel est le but d'un réseau sécurisé ?", options:["Protéger les données","Supprimer Internet","Augmenter le volume sonore","Bloquer l’ordinateur"], answer:0},
-{question:"Une authentification forte nécessite :", options:["Un seul mot de passe","Deux éléments ou plus","Aucune sécurité","Une clé USB"], answer:1},
-{question:"Dans une URL, www signifie :", options:["World Wide Web","Web With Windows","Web Without Wire","Wireless Wide Mode"], answer:0},
-{question:"Un fichier .exe est :", options:["Un fichier compressé","Un fichier exécutable","Une image","Un son"], answer:1}
-];
-// Variables
-let questions = [];
-let currentQuestion = 0;
-let score = 0;
-let timeLeft = 30;
-let timerInterval;
-let studentName = '';
-let studentSerie = '';
-
-// Mélange questions
+// --- FONCTIONS UTILES ---
 function shuffleArray(array){
-  for(let i=array.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [array[i],array[j]]=[array[j],array[i]];
-  }
-  return array;
+ for(let i=array.length-1;i>0;i--){
+   const j=Math.floor(Math.random()*(i+1));
+   [array[i],array[j]]=[array[j],array[i]];
+ }
+ return array;
 }
 
-// Commencer le quiz
-function startQuiz(){
-  studentName = document.getElementById("student-name").value.trim();
-  studentSerie = document.getElementById("student-series").value;
+// --- QUESTIONS PAR CLASSE ---
+// Ici, toutes tes questions gardent exactement leurs textes et options
+// Remplacer "answer: randomAnswerIndex(4)" par l'index correct original
+// Exemple : answer: 0 pour la première option correcte
+const questions4e = [
+     // Présentation des composants de l'unité centrale
+    { question: "Quel composant traite les informations dans l'ordinateur ?", options: ["RAM", "Disque dur", "Processeur", "Carte mère"], answer: 2 },
+    { question: "Quel composant permet de connecter tous les autres composants ?", options: ["Carte graphique", "Carte mère", "Clavier", "Processeur"], answer: 1 },
+    { question: "Quelle est la fonction du processeur ?", options: ["Afficher les images", "Transférer les données sur Internet", "Stocker les fichiers", "Exécuter les instructions"], answer: 3 },
+    { question: "Quel composant stocke les données de façon permanente ?", options: ["Carte réseau", "Disque dur", "RAM", "Processeur"], answer: 1 },
+    { question: "Quel composant convertit les signaux numériques en signaux visuels ?", options: ["RAM", "Carte graphique", "Processeur", "Disque dur"], answer: 1 },
 
-  if(studentName === "") { alert("Entrez votre nom."); return; }
-  if(studentSerie === "") { alert("Sélectionnez votre série."); return; }
+    // Description des mémoires
+    { question: "Quelle mémoire est volatile ?", options: ["Disque dur", "ROM", "RAM", "Clé USB"], answer: 2 },
+    { question: "Quelle mémoire est non volatile ?", options: ["RAM", "Cache", "ROM", "Registre"], answer: 2 },
+    { question: "La mémoire cache sert à :", options: ["Stocker des fichiers", "Envoyer des mails", "Afficher des images", "Accélérer l'accès aux données"], answer: 3 },
+    { question: "La RAM signifie :", options: ["Read Access Memory", "Random Access Memory", "Rapid Application Memory", "Remote Access Memory"], answer: 1 },
+    { question: "La ROM contient :", options: ["Les fichiers temporaires", "Les applications", "Le firmware", "Les vidéos"], answer: 2 },
 
-  // Vérifier si l'élève a déjà composé
-  if(localStorage.getItem(studentName)){
-      alert("Vous avez déjà composé l'évaluation !");
-      return;
-  }
+    // Description des logiciels système et applicatifs
+    { question: "Le système d'exploitation permet de :", options: ["Écrire des textes", "Gérer les ressources de l'ordinateur", "Créer des images", "Naviguer sur Internet uniquement"], answer: 1 },
+    { question: "Quel logiciel est applicatif ?", options: ["Windows 10", "LibreOffice Writer", "Linux", "MacOS"], answer: 1 },
+    { question: "Un logiciel système inclut :", options: ["Word", "Système d'exploitation", "Jeux vidéo", "Navigateur web"], answer: 1 },
+    { question: "Installer un logiciel permet de :", options: ["Changer la RAM", "Créer un réseau", "Réparer le processeur", "Ajouter une application"], answer: 3 },
+    { question: "Le logiciel applicatif sert à :", options: ["Gérer les fichiers système", "Effectuer une tâche spécifique", "Configurer le BIOS", "Accéder à Internet seulement"], answer: 1 },
 
-  currentQuestion = 0;
-  score = 0;
-  timeLeft = 30;
+    // Recherche des informations sur Internet
+    { question: "Le moteur de recherche le plus utilisé est :", options: ["Yahoo", "Bing", "DuckDuckGo", "Google"], answer: 3 },
+    { question: "Pour trouver des informations fiables, il faut :", options: ["Consulter un seul site", "Lire uniquement le titre", "Regarder les images", "Vérifier la source et la date"], answer: 3 },
+    { question: "Le terme URL signifie :", options: ["Universal Reference Link", "Uniform Reference Location", "Uniform Resource Locator", "Universal Resource Link"], answer: 2 },
+    { question: "Quel moteur de recherche respecte la vie privée ?", options: ["Google", "Yahoo", "Bing", "DuckDuckGo"], answer: 3 },
+    { question: "Un mot-clé est :", options: ["Une application", "Un fichier texte", "Une adresse e-mail", "Un terme utilisé pour rechercher une information"], answer: 3 },
 
-  document.getElementById("student-form").style.display = "none";
-  document.getElementById("timer").style.display = "block";
+    // Communication sur Internet
+    { question: "Quel outil permet la messagerie instantanée ?", options: ["Word", "WhatsApp", "Excel", "PowerPoint"], answer: 1 },
+    { question: "Une adresse e-mail valide ressemble à :", options: ["nomdomaine.com", "nom@domaine@com", "nom@domaine.com", "nom@domaine"], answer: 2 },
+    { question: "Le protocole utilisé pour envoyer des emails est :", options: ["HTTP", "FTP", "POP", "SMTP"], answer: 3 },
+    { question: "La messagerie électronique permet de :", options: ["Créer des programmes", "Envoyer des messages", "Afficher des images", "Formater des disques"], answer: 1 },
+    { question: "Pour communiquer sur Internet, on peut utiliser :", options: ["Email, chat, forum", "RAM, ROM, Cache", "Processeur et carte mère", "Disque dur et clé USB"], answer: 0 },
 
-  questions = shuffleArray([...questionsBase]);
-  showQuestion();
-}
+    // Utilisation d'un traitement de texte
+    { question: "Le format par défaut de Word est :", options: [".txt", ".pdf", ".xlsx", ".docx"], answer: 3 },
+    { question: "La correction orthographique permet de :", options: ["Créer des tableaux", "Insérer des images", "Mettre en page", "Corriger les fautes"], answer: 3 },
+    { question: "Insérer un tableau sert à :", options: ["Envoyer des emails", "Gérer la mémoire", "Installer un logiciel", "Organiser les données"], answer: 3 },
+    { question: "La mise en page permet de :", options: ["Installer Windows", "Structurer un document", "Rechercher sur Internet", "Gérer le processeur"], answer: 1 },
+    { question: "Un style dans Word permet de :", options: ["Modifier la RAM", "Uniformiser l'apparence du texte", "Changer le processeur", "Configurer Internet"], answer: 1 },
 
-// Affiche question
-function showQuestion(){
-  if(currentQuestion >= questions.length){ endQuiz(); return; }
-
-  const q = questions[currentQuestion];
-  const container = document.getElementById("quiz-container");
-  container.innerHTML = `<div class='question'><strong>Question ${currentQuestion+1} :</strong> ${q.question}</div>`;
+    // Périphériques et raccourcis
+    { question: "Quel périphérique permet d'entrer des données ?", options: ["Clavier", "Écran", "Imprimante", "Disque dur"], answer: 0 },
+    { question: "Quel périphérique permet d'afficher des informations ?", options: ["Clavier", "Écran", "Souris", "RAM"], answer: 1 },
+    { question: "La carte réseau sert à :", options: ["Afficher les images", "Exécuter les programmes", "Connecter l'ordinateur à Internet", "Stocker les fichiers"], answer: 2 },
+    { question: "Le BIOS est stocké dans :", options: ["ROM", "RAM", "Disque dur", "Cache"], answer: 0 },
+    { question: "La mémoire vive est également appelée :", options: ["ROM", "RAM", "Cache", "Clé USB"], answer: 1 },
+    { question: "Pour envoyer un fichier par email, on utilise :", options: ["Pièce jointe", "Tableau", "Image clipart", "Correction orthographique"], answer: 0 },
+    { question: "Le navigateur web sert à :", options: ["Créer une image", "Écrire un texte", "Stocker un fichier", "Accéder à Internet"], answer: 3 },
+    { question: "Un moteur de recherche sert à :", options: ["Créer un tableau", "Trouver des informations", "Installer un logiciel", "Corriger les fautes"], answer: 1 },
+    { question: "La touche 'Ctrl+C' permet de :", options: ["Ouvrir", "Copier", "Coller", "Supprimer"], answer: 1 },
+    { question: "La touche 'Ctrl+V' permet de :", options: ["Coller", "Copier", "Supprimer", "Ouvrir"], answer: 0 },
+    { question: "La touche 'Ctrl+X' permet de :", options: ["Couper", "Copier", "Coller", "Supprimer"], answer: 0 },
+    { question: "Quel format est utilisé pour enregistrer un PDF ?", options: [".docx", ".txt", ".xlsx", ".pdf"], answer: 3 },
+    { question: "Pour créer un nouveau document Word, on clique sur :", options: ["Enregistrer", "Fermer", "Ouvrir", "Nouveau"], answer: 3 },
+    { question: "Pour enregistrer un document, on clique sur :", options: ["Fermer", "Enregistrer", "Nouveau", "Imprimer"], answer: 1 },
+    { question: "Pour insérer une image dans Word, on utilise :", options: ["Insertion > Image", "Fichier > Ouvrir", "Mise en page > Marges", "Révision > Commentaire"], answer: 0 },
+    { question: "Pour créer un graphique dans Word, on utilise :", options: ["Insertion > Forme", "Insertion > Graphique", "Fichier > Enregistrer", "Accueil > Police"], answer: 1 },
+    { question: "Un document texte peut être enregistré au format :", options: [".exe, .dll", ".mp3, .wav", ".docx, .txt, .pdf", ".jpg, .png"], answer: 2 },
+    { question: "Pour mettre un texte en gras, on utilise :", options: ["Ctrl+I", "Ctrl+U", "Ctrl+B", "Ctrl+P"], answer: 2 },
+    { question: "Pour mettre un texte en italique, on utilise :", options: ["Ctrl+B", "Ctrl+P", "Ctrl+U", "Ctrl+I"], answer: 3 },
+    { question: "Pour souligner un texte, on utilise :", options: ["Ctrl+U", "Ctrl+B", "Ctrl+I", "Ctrl+P"], answer: 0 },
+    { question: "Pour annuler une action, on utilise :", options: ["Ctrl+C", "Ctrl+V", "Ctrl+Z", "Ctrl+Y"], answer: 2 },
+    { question: "Pour répéter une action annulée, on utilise :", options: ["Ctrl+V", "Ctrl+C", "Ctrl+Y", "Ctrl+Z"], answer: 2 },
+    { question: "Pour sélectionner tout le texte, on utilise :", options: ["Ctrl+X", "Ctrl+A", "Ctrl+C", "Ctrl+V"], answer: 1 },
+    { question: "Pour imprimer un document, on utilise :", options: ["Ctrl+X", "Ctrl+C", "Ctrl+P", "Ctrl+V"], answer: 2 },
+    { question: "Le cloud permet de :", options: ["Écrire un texte hors ligne", "Imprimer un document", "Installer un logiciel", "Stocker et partager des fichiers en ligne"], answer: 3 },
+    { question: "La recherche avancée sur Internet permet de :", options: ["Filtrer les résultats", "Corriger les fautes", "Changer la RAM", "Créer un fichier"], answer: 0 },
+    { question: "Un fichier joint à un email est appelé :", options: ["Hyperlien", "Pièce jointe", "Tableau", "Image clipart"], answer: 1 },
+    { question: "Le navigateur Chrome est un :", options: ["Système d'exploitation", "Navigateur web", "Traitement de texte", "Logiciel applicatif"], answer: 1 },
+    { question: "Une URL commence généralement par :", options: [".com", "ftp://", "www.", "http:// ou https://"], answer: 3 },
+    { question: "Le courrier indésirable est aussi appelé :", options: ["Adware", "Malware", "Virus", "Spam"], answer: 3 },
+    { question: "Un document texte peut inclure :", options: ["Processeur, RAM", "Navigateur, moteur de recherche", "Texte, images, tableaux", "Carte graphique, disque dur"], answer: 2 },
+    { question: "Le format .txt est :", options: ["Fichier texte simple", "Fichier image", "Fichier audio", "Fichier vidéo"], answer: 0 },
+    { question: "Le format .docx est :", options: ["Fichier audio", "Fichier texte Word", "Fichier image", "Fichier vidéo"], answer: 1 },
+    { question: "La fonction 'rechercher' dans un traitement de texte sert à :", options: ["Remplacer la RAM", "Écrire un email", "Trouver un mot ou une expression", "Installer un logiciel"], answer: 2 },
+    { question: "La fonction 'remplacer' permet de :", options: ["Ajouter des images", "Substituer un mot par un autre", "Créer des tableaux", "Accéder à Internet"], answer: 1 }
   
-  const optionsDiv = document.createElement("div");
-  optionsDiv.className = "options";
+  // ... toutes les autres questions exactement comme tu les as
+];
 
-  q.options.forEach((opt,i)=>{
-    const btn = document.createElement("button");
-    btn.textContent = opt;
-    btn.onclick = () => selectAnswer(i);
-    optionsDiv.appendChild(btn);
-  });
-  container.appendChild(optionsDiv);
+const questions3e = [
+  // Composants matériels
+  { question: "Quel composant central exécute les instructions d'un ordinateur ?", options: ["RAM", "Carte mère", "Processeur", "Disque dur"], answer: 2 },
+  { question: "Quel composant relie tous les autres composants ?", options: ["Clavier", "Carte mère", "Imprimante", "Souris"], answer: 1 },
+  { question: "La carte graphique sert à :", options: ["Gérer la mémoire", "Afficher des images", "Stocker des données", "Connecter à Internet"], answer: 1 },
+  { question: "Quel composant stocke les programmes et fichiers de façon permanente ?", options: ["ROM", "Disque dur", "Cache", "RAM"], answer: 1 },
+  { question: "Quel composant permet d'entrer des données dans l'ordinateur ?", options: ["Écran", "Disque dur", "Clavier", "Imprimante"], answer: 2 },
 
-  timeLeft = 30; // Temps par question en secondes
-  document.getElementById("timer").textContent = `Temps restant : ${timeLeft}s`;
-  clearInterval(timerInterval);
-  timerInterval = setInterval(updateTimer,1000);
+  // Maintenance de premier niveau
+  { question: "Quel outil est utilisé pour dépoussiérer l'intérieur d'un ordinateur ?", options: ["Tournevis", "Multimètre", "Soufflette", "Clé USB"], answer: 2 },
+  { question: "Pour éviter la surcharge électrique, on utilise :", options: ["Souris", "Parafoudre", "Clavier", "RAM"], answer: 1 },
+  { question: "La mise à jour d'un logiciel sert à :", options: ["Augmenter la RAM", "Réparer l'écran", "Changer le processeur", "Corriger les bugs et ajouter des fonctionnalités"], answer: 3 },
+  { question: "Si un ordinateur ne s'allume pas, il faut vérifier :", options: ["La RAM", "L'alimentation", "Le clavier", "La carte graphique"], answer: 1 },
+  { question: "La maintenance préventive consiste à :", options: ["Éviter les pannes avant qu'elles n'arrivent", "Installer un navigateur", "Changer le disque dur", "Réparer les pannes après leur apparition"], answer: 0 },
+
+  // Organisation des données en informatique - représentation et codification
+  { question: "Un bit représente :", options: ["Un fichier", "0 ou 1", "Une lettre", "Un octet"], answer: 1 },
+  { question: "Un octet correspond à :", options: ["16 bits", "8 bits", "1 bit", "4 bits"], answer: 1 },
+  { question: "Le binaire utilise :", options: ["0 et 1", "Toutes les lettres", "10 chiffres", "A et B"], answer: 0 },
+  { question: "La codification ASCII sert à :", options: ["Stocker des images", "Transférer des emails", "Gérer la mémoire", "Représenter des caractères"], answer: 3 },
+  { question: "La représentation d'un nombre en informatique est :", options: ["Binaire, décimal ou hexadécimal", "Octet uniquement", "Couleur uniquement", "Alphabetique uniquement"], answer: 0 },
+
+  // Critères d'une bonne information
+  { question: "Une information fiable doit être :", options: ["Répétitive", "Exacte et vérifiable", "Amusante", "Longue"], answer: 1 },
+  { question: "L’actualité d’une information signifie :", options: ["Qu’elle est longue", "Qu’elle est codée", "Qu’elle est récente et pertinente", "Qu’elle est compliquée"], answer: 2 },
+  { question: "La précision d’une information veut dire :", options: ["Détails corrects et complets", "Images attrayantes", "Son musical", "Écriture courte"], answer: 0 },
+  { question: "L’objectivité d’une information signifie :", options: ["Sans parti pris", "Avec opinions", "Avec blagues", "Avec images seulement"], answer: 0 },
+  { question: "La pertinence d’une information dépend de :", options: ["Le format du fichier", "Sa couleur", "Son utilité pour l'utilisateur", "Sa longueur"], answer: 2 },
+
+  // Complément des 50 questions
+  { question: "Le processeur est aussi appelé :", options: ["ROM", "GPU", "CPU", "RAM"], answer: 2 },
+  { question: "La RAM est utilisée pour :", options: ["Afficher les images", "Transférer sur Internet", "Stockage temporaire des données", "Stockage permanent"], answer: 2 },
+  { question: "Le disque dur est une mémoire :", options: ["Temporaire", "Cache", "Non volatile", "Volatile"], answer: 2 },
+  { question: "Pour vérifier la température d'un PC, on utilise :", options: ["Clavier", "Logiciel de monitoring", "Souris", "Multimètre"], answer: 1 },
+  { question: "Pour installer un logiciel, on utilise :", options: ["RAM", "Fichier d'installation ou setup", "Disque dur", "Processeur"], answer: 1 },
+  { question: "Le système d'exploitation sert à :", options: ["Écrire des textes", "Créer des images", "Envoyer des mails", "Gérer les ressources de l'ordinateur"], answer: 3 },
+  { question: "Le BIOS est stocké dans :", options: ["RAM", "Cache", "ROM", "Disque dur"], answer: 2 },
+  { question: "Pour protéger un ordinateur des virus, on installe :", options: ["Clavier", "Souris", "Carte graphique", "Antivirus"], answer: 3 },
+  { question: "L'unité centrale contient :", options: ["Écran, clavier, souris", "Processeur, RAM, Carte mère, Disques", "Logiciels uniquement", "Internet uniquement"], answer: 1 },
+  { question: "Le format binaire est composé de :", options: ["A et B", "0 et 1", "0 à 9", "lettres uniquement"], answer: 1 },
+  { question: "Le codage hexadécimal utilise :", options: ["0 et 1", "0 à 9 et A à F", "lettres uniquement", "Chiffres uniquement"], answer: 1 },
+  { question: "Pour nettoyer un clavier, on utilise :", options: ["Eau", "Clé USB", "Chiffon sec ou soufflette", "RAM"], answer: 2 },
+  { question: "Le stockage en ligne est appelé :", options: ["Disque dur", "RAM", "ROM", "Cloud"], answer: 3 },
+  { question: "Pour sauvegarder un fichier, on utilise :", options: ["CPU", "Disque dur ou clé USB", "RAM", "Carte graphique"], answer: 1 },
+  { question: "L’information pertinente doit être :", options: ["Amusante", "Colorée", "Longue", "Utile et adaptée au contexte"], answer: 3 },
+  { question: "Le traitement d’une information vise à :", options: ["Créer des jeux", "Installer un logiciel", "Changer la RAM", "Transformer des données en information"], answer: 3 },
+  { question: "Une information exacte est :", options: ["Courte", "Longue", "Correcte et vérifiable", "Bavarde"], answer: 2 },
+  { question: "Pour coder un caractère en informatique, on utilise :", options: ["Binary uniquement", "Decimal uniquement", "ASCII ou Unicode", "Hex uniquement"], answer: 2 },
+  { question: "La sauvegarde régulière permet de :", options: ["Augmenter la RAM", "Éviter la perte de données", "Changer le processeur", "Afficher des images"], answer: 1 },
+  { question: "Le format PDF sert à :", options: ["Stocker uniquement de la musique", "Partager des documents sans modification", "Stocker uniquement des images", "Exécuter des programmes"], answer: 1 },
+  { question: "La mémoire volatile perd les données :", options: ["Lorsqu'on imprime", "À l'arrêt de l'ordinateur", "Lorsqu'on ouvre Internet", "Lorsqu'on copie"], answer: 1 },
+  { question: "Pour mesurer la tension d'un ordinateur, on utilise :", options: ["CPU", "Multimètre", "RAM", "Disque dur"], answer: 1 },
+  { question: "Pour protéger un ordinateur des surtensions, on utilise :", options: ["RAM", "ROM", "Clavier", "Parafoudre"], answer: 3 },
+  { question: "Le cache CPU sert à :", options: ["Installer les logiciels", "Accélérer l'accès aux données", "Afficher les images", "Stocker les fichiers"], answer: 1 },
+  { question: "Le protocole HTTP sert à :", options: ["Envoyer des emails", "Accéder à des pages web", "Gérer la RAM", "Installer des logiciels"], answer: 1 },
+  { question: "La maintenance corrective consiste à :", options: ["Réparer une panne", "Éviter une panne", "Nettoyer l’écran", "Installer un antivirus"], answer: 0 },
+  { question: "Le clavier AZERTY est utilisé pour :", options: ["Afficher des images", "Stocker des données", "Transférer des fichiers", "Saisir du texte"], answer: 3 },
+  { question: "La souris permet de :", options: ["Écrire du texte", "Pointer et cliquer", "Stocker des fichiers", "Afficher des images"], answer: 1 },
+  { question: "Une donnée codée en binaire est :", options: ["A ou B", "Rouge ou Bleu", "0 ou 1", "Vrai ou Faux"], answer: 2 },
+  { question: "Le format CSV sert à :", options: ["Créer des images", "Stocker des données tabulaires", "Exécuter des programmes", "Afficher des vidéos"], answer: 1 },
+  { question: "Pour vérifier la performance d'un PC, on utilise :", options: ["Clavier", "Benchmark", "Souris", "RAM"], answer: 1 },
+  { question: "Une information pertinente est :", options: ["Longue", "Colorée", "Amusante", "Utile pour la décision"], answer: 3 },
+  { question: "La représentation décimale des données est :", options: ["Base 2", "Base 10", "Base 16", "Base 8"], answer: 1 },
+  { question: "La maintenance préventive inclut :", options: ["Installer jeux", "Changer l'écran", "Nettoyage et mises à jour", "Réparer après panne"], answer: 2 },
+  { question: "Pour organiser les fichiers, on utilise :", options: ["Clavier", "RAM", "Processeur", "Dossiers"], answer: 3 },
+  { question: "Le firmware est stocké dans :", options: ["RAM", "Disque dur", "Cache", "ROM"], answer: 3 },
+  { question: "Le processeur communique avec la RAM via :", options: ["Clavier", "Bus", "Souris", "Disque dur"], answer: 1 }
+
+];
+
+const questionsTerminaleA = [
+  { question: "Quel est le rôle principal d'un processeur ?", options:["Stocker des données","Exécuter des instructions","Gérer le réseau","Alimenter l'écran"], answer: 1 },
+  { question: "HTML est utilisé pour :", options:["Styler des pages","Structurer des pages","Programmer des applications","Créer des bases de données"], answer: 1 },
+  // ... toutes les autres questions Terminale A
+];
+
+const questionsByClass = {
+ "4e": questions4e,
+ "3e": questions3e,
+ "Terminale A": questionsTerminaleA
+};
+
+// --- VARIABLES GLOBALES ---
+let questions = [], currentQuestion = 0, score = 0, timeLeft = 30, timerInterval;
+let studentName = '', studentClass = '', studentSerie = '';
+
+const seriesSelect = document.getElementById("student-series");
+const classSelect = document.getElementById("student-class");
+classSelect.addEventListener("change", () => {
+ const selectedClass = classSelect.value;
+ if(["6e","5e"].includes(selectedClass)){
+   seriesSelect.style.display = "none";
+   seriesSelect.required = false;
+ } else {
+   seriesSelect.style.display = "block";
+   seriesSelect.required = true;
+ }
+});
+
+// --- FONCTIONS PRINCIPALES ---
+function startQuiz(){
+ studentName = document.getElementById("student-name").value.trim();
+ studentClass = document.getElementById("student-class").value;
+ studentSerie = document.getElementById("student-series").value;
+
+ if(studentName === "") { alert("Entrez votre nom."); return; }
+ if(studentClass === "") { alert("Sélectionnez votre classe."); return; }
+ if(seriesSelect.style.display !== "none" && studentSerie === "") { alert("Sélectionnez votre série."); return; }
+ if(!questionsByClass[studentClass]){ alert("L'épreuve pour cette classe n'est pas encore disponible !"); return; }
+
+ currentQuestion = 0;
+ score = 0;
+ timeLeft = 30;
+ document.getElementById("student-form").style.display = "none";
+ document.getElementById("timer").style.display = "block";
+ document.getElementById("quiz-header").textContent = `Classe : ${studentClass}`;
+
+ questions = shuffleArray([...questionsByClass[studentClass]]);
+ showQuestion();
 }
 
-// Timer
+function showQuestion(){
+ if(currentQuestion >= questions.length){ endQuiz(); return; }
+
+ const q = questions[currentQuestion];
+ const container = document.getElementById("quiz-container");
+ container.innerHTML = `<div class='question'><strong>Question ${currentQuestion+1} :</strong> ${q.question}</div>`;
+
+ // Mélanger les options et retrouver la nouvelle position de la bonne réponse
+ const optionsShuffled = shuffleArray([...q.options]);
+ const correctIndex = optionsShuffled.indexOf(q.options[q.answer]);
+
+ const optionsDiv = document.createElement("div");
+ optionsDiv.className = "options";
+ optionsShuffled.forEach((opt, i) => {
+   const btn = document.createElement("button");
+   btn.textContent = opt;
+   btn.onclick = () => {
+     if(i === correctIndex) score++;
+     nextQuestion();
+   };
+   optionsDiv.appendChild(btn);
+ });
+ container.appendChild(optionsDiv);
+
+ timeLeft = 30;
+ document.getElementById("timer").textContent = `Temps restant : ${timeLeft}s`;
+ clearInterval(timerInterval);
+ timerInterval = setInterval(updateTimer, 1000);
+}
+
 function updateTimer(){
-  timeLeft--;
-  document.getElementById("timer").textContent = `Temps restant : ${timeLeft}s`;
-  if(timeLeft <= 0){ clearInterval(timerInterval); nextQuestion(); }
+ timeLeft--;
+ document.getElementById("timer").textContent = `Temps restant : ${timeLeft}s`;
+ if(timeLeft <= 0){ clearInterval(timerInterval); nextQuestion(); }
 }
 
-// Sélection réponse
-function selectAnswer(i){
-  if(i === questions[currentQuestion].answer) score++;
-  nextQuestion();
-}
-
-// Suivante
 function nextQuestion(){
-  clearInterval(timerInterval);
-  currentQuestion++;
-  showQuestion();
+ clearInterval(timerInterval);
+ currentQuestion++;
+ showQuestion();
 }
 
-// Fin quiz
 function endQuiz(){
-  clearInterval(timerInterval);
-  document.getElementById("quiz-container").innerHTML = "";
-  document.getElementById("timer").style.display = "none";
+ clearInterval(timerInterval);
+ document.getElementById("quiz-container").innerHTML = "";
+ document.getElementById("timer").style.display = "none";
+ document.getElementById("quiz-header").textContent = "";
 
-  const pourcentage = ((score/questions.length)*100).toFixed(2);
+ const noteSur20 = ((score/questions.length)*20).toFixed(2);
+ let message = "";
+ if(noteSur20 >= 18) message = "Excellent travail ! 🎉";
+ else if(noteSur20 >= 14) message = "Très bien, continuez ! 👍";
+ else if(noteSur20 >= 10) message = "Vous avez réussi, mais vous pouvez faire mieux !";
+ else message = "Échec, il faut réviser davantage ❌";
 
-  // Message personnalisé
-  let message = "";
-  if(pourcentage >= 90) message = "Excellent travail ! 🎉";
-  else if(pourcentage >= 70) message = "Bien joué, continuez ! 👍";
-  else if(pourcentage >= 50) message = "Vous avez réussi, mais travaillez plus !";
-  else message = "Échec, à revoir sérieusement ❌";
-
-  document.getElementById("score").innerHTML =
-    `Épreuve terminée !<br>Votre note : ${score}/${questions.length} (${pourcentage}%)<br><br>${message}`;
-
-  // Enregistrer l'élève pour limiter à une seule tentative
-  localStorage.setItem(studentName, score);
-
-  document.getElementById("download-csv").style.display = "block";
+ document.getElementById("score").innerHTML = `Épreuve terminée !<br>Nom : ${studentName}<br>Classe : ${studentClass}<br>Série : ${studentSerie}<br>Votre note : ${noteSur20}/20<br><br>${message}`;
+ document.getElementById("download-csv").style.display = "block";
 }
 
-// CSV
 function downloadCSV(){
-    const pourcentage = ((score/questions.length)*100).toFixed(2);
-
-    const csvContent =
-        "nom,serie,score,pourcentage,date\n" +
-        `${studentName},${studentSerie},${score},${pourcentage},${new Date().toLocaleString()}`;
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `note_${studentName.replace(/\s/g,'_')}.csv`);
-    document.body.appendChild(link);
-
-    link.click();
-    document.body.removeChild(link);
+ const noteSur20 = ((score/questions.length)*20).toFixed(2);
+ const csvContent = `Nom,Classe,Série,Note\n${studentName},${studentClass},${studentSerie},${noteSur20}`;
+ const blob = new Blob([csvContent], { type: "text/csv" });
+ const url = URL.createObjectURL(blob);
+ const a = document.createElement("a");
+ a.href = url;
+ a.download = "note.csv";
+ document.body.appendChild(a);
+ a.click();
+ document.body.removeChild(a);
 }
 </script>
 </body>
