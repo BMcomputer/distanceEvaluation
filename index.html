@@ -84,6 +84,7 @@ width:220px;
 
 <div class="container">
 
+
 <h1>LYCEE TECHNIQUE DE MOUTOURWA</h1>
 <h2>Évaluation à distance</h2>
 
@@ -127,6 +128,8 @@ width:220px;
 <div id="quiz"></div>
 
 <div id="timer" class="timer"></div>
+<div id="student" style="font-weight:bold; margin-bottom:10px;"></div>
+<div id="questionNumber" style="font-weight:bold; margin-bottom:5px;"></div>
 
 <div id="result"></div>
 
@@ -291,29 +294,45 @@ const questionsA4 = [
 ];
 function startQuiz(){
 
-studentName=document.getElementById("name").value
-classe=document.getElementById("classe").value
-specialite=document.getElementById("specialite").value
+    studentName = document.getElementById("name").value.trim()
+    classe = document.getElementById("classe").value
+    specialite = document.getElementById("specialite").value
 
-if(studentName=="" || classe=="" || specialite==""){
+    if(studentName=="" || classe=="" || specialite==""){
+        alert("Remplir toutes les informations")
+        return
+    }
 
-alert("Remplir toutes les informations")
+    /* Clé unique combinant nom + classe + spécialité */
+    const quizKey = "quiz_" + studentName + "_" + classe + "_" + specialite
 
-return
+    /* Vérifier si cet élève a déjà composé */
+    if(localStorage.getItem(quizKey)){
+        alert("Vous avez déjà composé ce test.")
+        return
+    }
 
-}
+    /* Enregistrer que l'élève a commencé le test */
+    localStorage.setItem(quizKey, "fait")
 
-document.getElementById("classeAffiche").innerHTML="Classe : "+classe+" "+specialite
+    /* Afficher le nom et la classe de l'élève pendant le quiz */
+    document.getElementById("student").innerHTML =
+        "Élève : <b>" + studentName + "</b> | Classe : " + classe + " | Spécialité : " + specialite
 
-if(classe=="A1") questions=shuffle(questionsA1)
-if(classe=="A2") questions=shuffle(questionsA2)
-if(classe=="A3") questions=shuffle(questionsA3)
-if(classe=="A4") questions=shuffle(questionsA4)
+    /* Afficher la classe en haut */
+    document.getElementById("classeAffiche").innerHTML = "Classe : " + classe + " " + specialite
 
-document.getElementById("start").style.display="none"
+    /* Charger les questions selon la classe */
+    if(classe=="A1") questions = shuffle(questionsA1)
+    if(classe=="A2") questions = shuffle(questionsA2)
+    if(classe=="A3") questions = shuffle(questionsA3)
+    if(classe=="A4") questions = shuffle(questionsA4)
 
-showQuestion()
+    /* Masquer le formulaire de départ et démarrer le quiz */
+    document.getElementById("start").style.display = "none"
+    document.getElementById("quiz").style.display = "block"
 
+    showQuestion()
 }
 
 function showQuestion(){
@@ -346,8 +365,8 @@ function startTimer(){
 
 timeLeft=30
 
-document.getElementById("timer").innerHTML="Temps : "+timeLeft
-
+document.getElementById("questionNumber").innerHTML =
+    "Question " + (currentQuestion+1) + " / " + questions.length
 timer=setInterval(()=>{
 
 timeLeft--
